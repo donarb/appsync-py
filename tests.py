@@ -1,3 +1,4 @@
+from time import sleep
 import unittest
 
 from server import Server
@@ -232,6 +233,42 @@ class ClientServerTest(unittest.TestCase):
         # Check that the object was marked deleted
         o = self.server.objects[0]
         self.assertTrue(o.deleted)
-
+    
+    def testSyncConflict(self):
+        ''' Syncing with conflict handling - ojbect is updated on client and on server,
+        then syncing takes place '''
+        
+        self.client1.add_object("2014-05-10", "apples", "3")
+        self.assertEqual(len(self.client1.objects), 1)
+        
+        o = self.client1.objects[0]
+        self.assertEqual(o.pk, "2014-05-10")
+        self.assertEqual(o.name, "apples")
+        self.assertEqual(o.value, "3")
+        self.assertEqual(self.client1.counter, 1)
+        
+        # Make sure the server has no objects
+        self.assertEqual(len(self.server.objects), 0)
+        
+        # Sync the client to the server
+        self.client1.do_sync()
+        
+        # Update the object on the client
+        self.client1.update_object("2014-05-10", "5")
+        
+        # Make sure timestamplastupdate on client and server is different
+        sleep(2)
+        
+        # Update the object on the server
+        self.server.update_object("2014-05-10", "7")
+        self.assertEqual(self.server.counter, 2)
+        
+        # Sync the client to the server
+        self.client1.do_sync()
+        
+        o = self.client1.objects[0]
+        self.assertEqual(o.pk, "2014-05-10")
+        self.assertEqual(o.value, "7")
+        
 if __name__ == '__main__':
     unittest.main()
