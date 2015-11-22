@@ -39,16 +39,16 @@ class Client:
                     # Check for conflict (object updated locally since last sync to server)
                     if o.lastupdate_counter > self.lastsync_counter:
                         # Decide how to handle conflict
-                        if self.conflict_handling == SERVER_PRIORITY:
+                        if self.conflict_handling == SERVERPRIORITY:
                             o.value = sob.value
                             o.deleted = sob.deleted
                         elif self.conflict_handling == CLIENTPRIORITY:
                             ''' no change to local object '''
                         elif self.conflict_handling == TIMESTAMPPRIORITY:
-                            if sob.timestamplastupdate > o.timestamplastupdate:
+                            if sob.timestampupdated > o.timestampupdated:
                                 o.value = sob.value
                                 o.deleted = sob.deleted
-                                o.timestamplastupdate = datetime.now()
+                                o.timestampupdated = datetime.now()
                     else:
                         # No conflict, update object locally
                         o.value = sob.value
