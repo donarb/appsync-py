@@ -1,6 +1,7 @@
 language: python
 python:
   - "2.7"
-
+# No dependencies to install
+install: true
 # command to run tests
 script: tests
